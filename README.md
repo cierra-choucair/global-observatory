@@ -1,13 +1,16 @@
 # Global Quantum Use Case & Readiness Observatory — Functional Demo
 
 Interactive demonstration of the **ITU Global Quantum Use Case & Readiness
-Observatory**, powered by the **Universum Labs Classical–Quantum Pursuit
-Framework v1.0**. Built for the UAE funding pitch.
+Observatory** — a policy-oriented repository for exploring quantum use cases,
+understanding national and regional capabilities, comparing classical and
+quantum pathways, and generating policy briefs.
 
-> **All data is sample data.** The nine use-case evaluations, jurisdiction
-> profiles, evidence claims and sources are illustrative, authored to
-> demonstrate functionality. They are not real assessments. The scoring
-> *methodology* is the real v1.0 specification.
+Classical–Quantum analysis provided by **Universum Labs**.
+
+> **All data is sample data.** Use-case assessments, country profiles,
+> sources and Road Tour records in this build are illustrative content
+> authored for demonstration. Nothing here is a real evaluation of any
+> technology or country.
 
 ## Run it
 
@@ -16,55 +19,56 @@ npm install
 npm run dev        # http://localhost:5173
 ```
 
-Production build: `npm run build` then `npm run preview`.
-No backend, no external services — everything runs in the browser.
+Production build: `npm run build`, then `npm run preview`.
+Fully static — no backend, no external requests (the world map ships with the
+bundle). Deploys directly to any static host, including Vercel.
 
-## What the demo shows
+## The three pillars
 
-**Three launch domains, nine use cases** — chosen so every decision lane in
-the framework appears at least once:
+1. **Use Case Repository** (default landing) — searchable, filterable catalog
+   of nine use cases across three demonstration domains (Quantum-Safe
+   Communications & Security; Molecular & Materials Simulation; Energy), each
+   with a public Classical–Quantum Pursuit Profile, evidence status,
+   confidence band, maturity, time horizon and geographic coverage.
+2. **Global Map** — interactive world map with an explicit data-coverage
+   overlay, country search, and a side drawer showing national capabilities
+   (as descriptive bands), three domain-level Classical–Quantum outlooks,
+   relevant use cases, ITU Quantum Road Tour status, and sources.
+3. **Policy Brief Generator** — six-step workflow (geography, audience,
+   domains/use cases, local context, analysis, preview) producing an
+   evidence-labeled, editable brief with PDF export (print dialog), draft
+   saving, and actions organized by time horizon.
 
-| Domain | Use case | Global lane (current) |
-|---|---|---|
-| Security & Comms | QRNG for national root-of-trust | Production deployment |
-| Security & Comms | Metropolitan QKD backbone vs. PQC | Prepare / partner |
-| Security & Comms | Quantum network testbed | Priority research |
-| Molecules & Materials | Green ammonia catalyst discovery | Priority research → *validation under FTQC* |
-| Molecules & Materials | Battery electrolyte (hybrid pipeline) | Operational pilot |
-| Molecules & Materials | CO₂ capture sorbent screening | Monitor |
-| Energy | National grid unit commitment | Classical default |
-| Energy | District cooling optimization | Targeted validation |
-| Energy | Energy portfolio risk (QAE) | **Insufficient evidence** |
+Plus: **Compare** (country-vs-country and use-case comparison) and
+**About / Data Notes** (provenance labels, dataset versioning, Road Tour).
 
-**Live functionality**
+## IP boundary
 
-- **G-QPS / L-QPS** with conservative interval propagation (Part 4.4) —
-  intervals are always shown; a verdict is robust only when the whole interval
-  sits on one side of a materiality boundary.
-- **Jurisdiction switcher** (UAE featured, plus Switzerland, Singapore, Kenya,
-  Brazil): local weight derivation with bounded condition/priority multipliers
-  (Part 6), local Access Readiness, and ROV strategic-alignment adjustments.
-  The same use case lands in different lanes in different jurisdictions.
-- **Scenario keyframes** (Current / Near-term / Application-relevant FTQC,
-  Part 10): watch the ammonia case cross from research into targeted
-  validation only under the FTQC keyframe.
-- **What-if panel**: drag priority multipliers (0.75–1.50) and watch weights
-  renormalize, scores move and lanes flip across the whole portfolio.
-- **Gate layer** (Part 3), **evidence tags** (demonstrated / modeled /
-  community / vendor / unknown, Part 9), **coverage floor** — the QAE case
-  demonstrates the framework refusing to issue a recommendation below 70%
-  weighted evidence coverage.
+The Universum Labs Classical–Quantum Pursuit Framework is treated as a
+protected analytical service:
+
+- The client ships **only final public outputs**: pursuit categories, rounded
+  spectrum positions with uncertainty ranges, confidence bands, evidence
+  labels, up to three plain-language drivers, dates and versions.
+- No weights, formulas, thresholds, multipliers, gate logic, intermediate
+  values or scoring code exist anywhere in the frontend source or bundle.
+- `src/services/observatory.ts` is the seam where the real managed analysis
+  service plugs in; its interface returns the same minimal result objects the
+  demo resolves from sample data.
+- A "How to read the analysis" explainer describes what the outputs mean —
+  never how they are computed.
 
 ## Code map
 
 ```
 src/
-  framework/spec.ts     v1.0 constants: weights, bands, lanes, gates, tags
-  framework/engine.ts   scoring engine: utilities, QPS, ARS, ROV, ECI,
-                        local weight derivation, decision-lane rules
-  data/                 sample use cases (per domain) + jurisdiction profiles
-  components/           portfolio, detail (Pursuit Profile), what-if, methodology
+  types.ts               public data schema (final outputs only)
+  data/                  sample dataset: use cases, countries, labels, actions
+  services/observatory.ts  analysis-service facade (backend seam)
+  components/            repository, detail, map, drawer, compare, briefs, about
+  router.ts / state.tsx  hash routing + cross-page selection state
 ```
 
-To swap in real data, replace the files in `src/data/` — the engine and UI are
-data-driven and need no changes.
+The schema supports manual curation now and automated ingestion later
+(versioning, provenance, Road Tour contribution status per record) without
+interface redesign. To extend the dataset, edit the files in `src/data/`.

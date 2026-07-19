@@ -1,187 +1,108 @@
-import { useMemo, useState } from "react";
-import { DetailView } from "./components/DetailView";
-import { MethodologyView } from "./components/MethodologyView";
-import { PortfolioView } from "./components/PortfolioView";
-import { WhatIfPanel } from "./components/WhatIfPanel";
-import type { EvaluateOptions } from "./framework/engine";
-import { SCENARIOS } from "./framework/spec";
-import { JURISDICTIONS, USE_CASES } from "./data";
-import type { CriterionId, ScenarioId } from "./types";
+import { CompareView } from "./components/CompareView";
+import { AboutView } from "./components/AboutView";
+import { BriefsView } from "./components/BriefsView";
+import { ContributeView } from "./components/ContributeView";
+import { MapView } from "./components/MapView";
+import { RepositoryView } from "./components/RepositoryView";
+import { UseCaseDetail } from "./components/UseCaseDetail";
+import { SAMPLE_DISCLOSURE } from "./data/labels";
+import { USE_CASES, useCaseById } from "./data/useCases";
+import { navigate, useRoute } from "./router";
+import { AppStateProvider, useAppState } from "./state";
 
-type View =
-  | { name: "portfolio" }
-  | { name: "detail"; id: string }
-  | { name: "methodology" };
+const NAV = [
+  { path: "use-cases", label: "Use Cases" },
+  { path: "map", label: "Global Map" },
+  { path: "compare", label: "Compare" },
+  { path: "briefs", label: "Policy Briefs" },
+  { path: "about", label: "About / Data Notes" },
+];
 
-export default function App() {
-  const [view, setView] = useState<View>({ name: "portfolio" });
-  const [jurisdictionId, setJurisdictionId] = useState<string | null>("are");
-  const [scenario, setScenario] = useState<ScenarioId>("current");
-  const [overrides, setOverrides] = useState<Partial<Record<CriterionId, number>>>({});
+function Shell() {
+  const route = useRoute();
+  const { brief } = useAppState();
+  const section = route[0] || "use-cases";
+  const briefCount = brief.useCaseIds.length + brief.domains.length;
 
-  const jurisdiction = useMemo(
-    () => JURISDICTIONS.find((j) => j.id === jurisdictionId) ?? null,
-    [jurisdictionId],
-  );
-
-  const evalOptions: EvaluateOptions = useMemo(
-    () => ({ scenario, jurisdiction, priorityOverrides: overrides }),
-    [scenario, jurisdiction, overrides],
-  );
-
-  const selectJurisdiction = (id: string | null) => {
-    setJurisdictionId(id);
-    setOverrides({});
-  };
-
-  const whatIf = (
-    <WhatIfPanel
-      jurisdiction={jurisdiction}
-      overrides={overrides}
-      onChange={(id, value) => setOverrides((o) => ({ ...o, [id]: value }))}
-      onReset={() => setOverrides({})}
-    />
-  );
+  let content: React.ReactNode;
+  if (section === "use-cases" && route[1]) {
+    const uc = useCaseById(route[1]);
+    content = uc ? (
+      <UseCaseDetail
+        uc={uc}
+        related={uc.related
+          .map((id) => USE_CASES.find((u) => u.id === id))
+          .filter((u): u is (typeof USE_CASES)[number] => !!u)}
+      />
+    ) : (
+      <div className="empty-state">Use case not found.</div>
+    );
+  } else if (section === "map") {
+    content = <MapView />;
+  } else if (section === "compare") {
+    content = <CompareView preselect={route[1]} />;
+  } else if (section === "briefs") {
+    content = <BriefsView />;
+  } else if (section === "about") {
+    content = <AboutView />;
+  } else if (section === "contribute") {
+    content = <ContributeView />;
+  } else {
+    content = <RepositoryView />;
+  }
 
   return (
     <>
-      <header className="masthead">
+      <a className="skip-link" href="#main">Skip to content</a>
+      <header className="masthead no-print">
         <div className="masthead-inner">
           <div className="masthead-top">
             <div>
               <h1>Global Quantum Use Case &amp; Readiness Observatory</h1>
               <div className="org">
-                International Telecommunication Union · Powered by Universum Labs
-                Classical–Quantum Pursuit Framework v1.0
+                International Telecommunication Union · Classical–Quantum
+                analysis provided by Universum Labs
               </div>
             </div>
             <span className="demo-chip">FUNCTIONAL DEMO · SAMPLE DATA</span>
           </div>
-          <nav>
-            <button
-              className={view.name !== "methodology" ? "active" : ""}
-              onClick={() => setView({ name: "portfolio" })}
-            >
-              Portfolio
-            </button>
-            <button
-              className={view.name === "methodology" ? "active" : ""}
-              onClick={() => setView({ name: "methodology" })}
-            >
-              Methodology
-            </button>
+          <nav aria-label="Primary">
+            {NAV.map((n) => (
+              <button
+                key={n.path}
+                className={section === n.path ? "active" : ""}
+                aria-current={section === n.path ? "page" : undefined}
+                onClick={() => navigate(`/${n.path}`)}
+              >
+                {n.label}
+                {n.path === "briefs" && briefCount > 0 && (
+                  <span className="nav-count" aria-label={`${briefCount} items selected`}>
+                    {briefCount}
+                  </span>
+                )}
+              </button>
+            ))}
           </nav>
         </div>
       </header>
 
-      {view.name !== "methodology" && (
-        <div className="controlbar">
-          <div className="controlbar-inner">
-            <div className="control">
-              <label>Jurisdiction</label>
-              <div className="seg">
-                <button
-                  className={jurisdictionId === null ? "active" : ""}
-                  onClick={() => selectJurisdiction(null)}
-                >
-                  🌐 Global
-                </button>
-                {JURISDICTIONS.map((j) => (
-                  <button
-                    key={j.id}
-                    className={jurisdictionId === j.id ? "active" : ""}
-                    onClick={() => selectJurisdiction(j.id)}
-                    title={j.blurb}
-                  >
-                    {j.flag} {j.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className="control">
-              <label>Scenario</label>
-              <div className="seg">
-                {SCENARIOS.map((s) => (
-                  <button
-                    key={s.id}
-                    className={scenario === s.id ? "active" : ""}
-                    onClick={() => setScenario(s.id)}
-                    title={s.blurb}
-                  >
-                    {s.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <span className="control-note">
-              {jurisdiction
-                ? `Local view · profile ${jurisdiction.profileVersion}`
-                : "Fixed global reference methodology"}
-            </span>
-          </div>
-        </div>
-      )}
-
-      <main className="page">
-        {view.name === "portfolio" && (
-          <div className="detail-layout">
-            <div style={{ minWidth: 0 }}>
-              <PortfolioView
-                useCases={USE_CASES}
-                evalOptions={evalOptions}
-                onOpen={(id) => {
-                  setView({ name: "detail", id });
-                  window.scrollTo({ top: 0 });
-                }}
-              />
-            </div>
-            <div className="detail-rail">
-              {whatIf}
-              {jurisdiction && (
-                <div className="panel">
-                  <h3>
-                    {jurisdiction.flag} {jurisdiction.name}
-                  </h3>
-                  <p className="sub">Jurisdiction profile {jurisdiction.profileVersion}</p>
-                  <p style={{ fontSize: 12.5, color: "var(--ink-2)", margin: "0 0 10px" }}>
-                    {jurisdiction.blurb}
-                  </p>
-                  <div className="section-title">Documented priorities</div>
-                  <ul className="bullets">
-                    {jurisdiction.priorityNotes.map((n) => (
-                      <li key={n.label}>
-                        <b>{n.label}</b> (Level {n.level}) — {n.basis}
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="section-title" style={{ marginTop: 10 }}>Profile basis</div>
-                  <ul className="bullets">
-                    {jurisdiction.sources.map((s) => (
-                      <li key={s}>{s}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-        {view.name === "detail" && (
-          <DetailView
-            uc={USE_CASES.find((u) => u.id === view.id)!}
-            evalOptions={evalOptions}
-            jurisdictions={JURISDICTIONS}
-            onBack={() => setView({ name: "portfolio" })}
-            rail={whatIf}
-          />
-        )}
-        {view.name === "methodology" && <MethodologyView />}
+      <main className="page" id="main">
+        {content}
       </main>
 
-      <footer className="footer">
-        Demonstration build with illustrative sample data — no real assessments, benchmarks or
-        national profiles. Methodology: Universum Labs Classical–Quantum Pursuit Framework v1.0
-        (provisional weights pending calibration). © Universum Labs.
+      <footer className="footer no-print">
+        {SAMPLE_DISCLOSURE} Classical–Quantum analysis provided by Universum
+        Labs; the analysis methodology is proprietary and not distributed with
+        this application.
       </footer>
     </>
+  );
+}
+
+export default function App() {
+  return (
+    <AppStateProvider>
+      <Shell />
+    </AppStateProvider>
   );
 }
