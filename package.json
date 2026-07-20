@@ -2,7 +2,7 @@
   "name": "global-quantum-observatory-demo",
   "private": true,
   "version": "0.1.0",
-  "description": "ITU Global Quantum Use Case \u0026 Readiness Observatory — functional demo (sample data). Classical–Quantum analysis provided by Universum Labs.",
+  "description": "ITU Global Quantum Use Case \u0026 Readiness Observatory — functional demo (sample data). Powered by Universum Labs.",
   "type": "module",
   "scripts": {
     "dev": "vite",

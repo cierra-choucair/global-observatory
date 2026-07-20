@@ -60,11 +60,10 @@ function Shell() {
             <div>
               <h1>Global Quantum Use Case &amp; Readiness Observatory</h1>
               <div className="org">
-                International Telecommunication Union · Classical–Quantum
-                analysis provided by Universum Labs
+                International Telecommunication Union · Powered by Universum Labs
               </div>
             </div>
-            <span className="demo-chip">FUNCTIONAL DEMO · SAMPLE DATA</span>
+            <span className="demo-chip">DEMO</span>
           </div>
           <nav aria-label="Primary">
             {NAV.map((n) => (
@@ -91,9 +90,8 @@ function Shell() {
       </main>
 
       <footer className="footer no-print">
-        {SAMPLE_DISCLOSURE} Classical–Quantum analysis provided by Universum
-        Labs; the analysis methodology is proprietary and not distributed with
-        this application.
+        {SAMPLE_DISCLOSURE} Powered by Universum Labs; the analysis methodology
+        is proprietary and not distributed with this application.
       </footer>
     </>
   );

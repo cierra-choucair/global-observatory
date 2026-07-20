@@ -103,6 +103,12 @@ export const IconPin = ({ size = 16, className }: IconProps) => (
   </svg>
 );
 
+export const IconExternal = ({ size = 16, className }: IconProps) => (
+  <svg {...base(size)} className={className}>
+    <path d="M14 4h6v6M20 4l-9 9M19 14v6H4V5h6" />
+  </svg>
+);
+
 export const IconLayers = ({ size = 16, className }: IconProps) => (
   <svg {...base(size)} className={className}>
     <path d="m12 3 9 5-9 5-9-5z" />

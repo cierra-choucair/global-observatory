@@ -66,10 +66,15 @@ export function ExplainerModal({ onClose }: { onClose: () => void }) {
             and last-updated date, and is revised as evidence and technology
             evolve.
           </p>
+          <p>
+            <b>Sources.</b> Material claims link to selected, verifiable
+            references. These sources support specific evidence inputs; they do
+            not imply their authors endorse the final analysis.
+          </p>
           <p className="rail-note">
-            The analysis is provided by Universum Labs as a managed service; its
-            detailed methodology is proprietary and is not part of this
-            application.
+            The analysis is powered by Universum Labs and delivered as a managed
+            service; its detailed methodology is proprietary and is not part of
+            this application.
           </p>
         </div>
       </div>

@@ -1,5 +1,11 @@
 import { useMemo, useState } from "react";
 import { ACTION_LIBRARY } from "../data/actions";
+import {
+  SOURCE_STATUS_META,
+  SOURCE_TYPE_META,
+  sourcesForUseCase,
+} from "../data/citations";
+import type { PublicSourceRecord } from "../data/citations";
 import { COUNTRIES, countryByIso } from "../data/countries";
 import {
   AUDIENCE_META,
@@ -39,6 +45,12 @@ const STEPS = [
 const ASSESSED = COUNTRIES.filter(
   (c) => c.dataStatus === "comprehensive" || c.dataStatus === "partial",
 );
+
+function citationTail(s: PublicSourceRecord): string {
+  const who = s.authors?.join(", ") ?? s.institution ?? "";
+  const tail = [who, s.publication, s.year ? String(s.year) : ""].filter(Boolean).join(", ");
+  return tail ? `. ${tail}` : "";
+}
 
 function defaultTitle(countryName: string): string {
   return `Quantum Technology Policy Brief — ${countryName}`;
@@ -618,17 +630,54 @@ function BriefPreview({
         </section>
 
         <section>
-          <h2>Sources</h2>
-          <ul className="brief-sources">
-            {allSources.map((s) => (
-              <li key={s.label}>
-                <ProvenanceBadge p={s.provenance as never} /> {s.label}
-              </li>
-            ))}
-          </ul>
+          <h2>Selected references</h2>
           <p className="brief-note">
-            Classical–Quantum analysis provided by Universum Labs. Results are
-            versioned and updated as evidence evolves. {DATA_VERSION}.
+            References support the evidence inputs used in this brief.
+            Classical–Quantum Pursuit Profiles are analyses produced by Universum
+            Labs.
+          </p>
+          {brief.useCaseIds.map((ucId) => {
+            const uc = useCaseById(ucId);
+            const refs = sourcesForUseCase(ucId);
+            if (!uc || refs.length === 0) return null;
+            return (
+              <div key={ucId} className="brief-refs-group">
+                <h3>{uc.title}</h3>
+                <ol className="brief-refs">
+                  {refs.map((s) => (
+                    <li key={s.id}>
+                      {s.title}
+                      {citationTail(s)}
+                      {" — "}
+                      <span className="brief-note">
+                        {SOURCE_TYPE_META[s.sourceType]} · {SOURCE_STATUS_META[s.evidenceStatus]}
+                        {s.isIllustrative && " · Illustrative record, sample data"}
+                        {s.doi && ` · doi:${s.doi}`}
+                        {!s.doi && s.officialUrl && ` · ${s.officialUrl}`}
+                      </span>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            );
+          })}
+          {country.sources.length > 0 && (
+            <>
+              <h3>Country profile sources</h3>
+              <ul className="brief-sources">
+                {allSources
+                  .filter((s) => country.sources.some((cs) => cs.label === s.label))
+                  .map((s) => (
+                    <li key={s.label}>
+                      <ProvenanceBadge p={s.provenance as never} /> {s.label}
+                    </li>
+                  ))}
+              </ul>
+            </>
+          )}
+          <p className="brief-note">
+            Powered by Universum Labs. Results are versioned and updated as
+            evidence evolves. {DATA_VERSION}.
           </p>
         </section>
       </article>

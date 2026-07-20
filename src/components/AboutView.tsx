@@ -30,11 +30,12 @@ export function AboutView() {
             generating policy briefs for decision-makers.
           </p>
           <p>
-            Classical–Quantum analysis is provided by Universum Labs as a managed
-            service. The Observatory publishes the analysis results — pursuit
-            categories, spectrum positions with uncertainty, confidence and
-            evidence labels, and plain-language drivers — while the underlying
-            methodology remains proprietary to Universum Labs.
+            The Observatory is powered by Universum Labs, whose Classical–Quantum
+            analysis runs as a managed service. The Observatory publishes the
+            analysis results — pursuit categories, spectrum positions with
+            uncertainty, confidence and evidence labels, plain-language drivers,
+            and selected supporting references — while the underlying methodology
+            remains proprietary to Universum Labs.
           </p>
           <button className="linklike" onClick={() => setExplainer(true)}>
             How to read the analysis

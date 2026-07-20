@@ -5,7 +5,7 @@ Observatory** — a policy-oriented repository for exploring quantum use cases,
 understanding national and regional capabilities, comparing classical and
 quantum pathways, and generating policy briefs.
 
-Classical–Quantum analysis provided by **Universum Labs**.
+Powered by **Universum Labs**.
 
 > **All data is sample data.** Use-case assessments, country profiles,
 > sources and Road Tour records in this build are illustrative content
@@ -41,6 +41,23 @@ bundle). Deploys directly to any static host, including Vercel.
 
 Plus: **Compare** (country-vs-country and use-case comparison) and
 **About / Data Notes** (provenance labels, dataset versioning, Road Tour).
+
+## Evidence & Selected Sources (selective transparency)
+
+Each use case carries an "Evidence & Selected Sources" section with 3–6
+anchor source records, claim-level `[n]` citation markers, a source-detail
+modal, per-use-case evidence limitations, and a "mixed evidence" flag where
+sources materially disagree. Source **type** (peer-reviewed, standards,
+government, vendor-reported, Road Tour, internal Universum Labs analysis…)
+is always distinguished from evidence **status** (demonstrated, modeled,
+vendor-reported, insufficient…). Verified records reuse citation metadata
+supplied in project materials; all other records are explicit
+"Illustrative — sample data" placeholders with no invented DOIs or URLs.
+Generated policy briefs include a matching "Selected References" section.
+
+The deep link to the expanded Universum Labs evidence record is configured
+via `VITE_UL_PLATFORM_BASE_URL`; when unset, the UI shows a labeled demo
+placeholder instead of a broken link.
 
 ## IP boundary
 

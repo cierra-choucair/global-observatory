@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { CLAIM_REFS, sourcesForUseCase } from "../data/citations";
 import { countryByIso } from "../data/countries";
 import { CATEGORY_META, DOMAINS, HORIZON_META } from "../data/labels";
 import { getUseCaseAnalysis } from "../services/observatory";
@@ -10,11 +11,11 @@ import {
   ConfidenceBadge,
   EvidenceBadge,
   HorizonBadge,
-  ProvenanceBadge,
   SampleTag,
 } from "./badges";
 import { ExplainerModal } from "./ExplainerModal";
 import { IconBack, IconCheck, IconInfo, IconPlus } from "./icons";
+import { CitationRefs, SourceModal, SourcesSection } from "./sources";
 import { SpectrumMeter } from "./SpectrumMeter";
 
 function Section({
@@ -38,6 +39,13 @@ export function UseCaseDetail({ uc, related }: { uc: UseCasePublic; related: Use
   const { brief, toggleBriefUseCase, selectedCountry } = useAppState();
   const [horizon, setHorizon] = useState<HorizonId>(uc.profiles[0].horizon);
   const [explainer, setExplainer] = useState(false);
+  const [openSourceId, setOpenSourceId] = useState<string | null>(null);
+
+  const refs = CLAIM_REFS[uc.id] ?? {};
+  const openSource = sourcesForUseCase(uc.id).find((s) => s.id === openSourceId);
+  const cite = (key: string) => (
+    <CitationRefs useCaseId={uc.id} ids={refs[key]} onOpen={setOpenSourceId} />
+  );
 
   const analysis = useMemo(
     () => getUseCaseAnalysis(uc.id, selectedCountry, horizon)!,
@@ -122,13 +130,15 @@ export function UseCaseDetail({ uc, related }: { uc: UseCasePublic; related: Use
             )}
             <div className="section-title" style={{ marginTop: 12 }}>Why the result leans this way</div>
             <ul className="bullets">
-              {p.drivers.map((d) => (
-                <li key={d}>{d}</li>
+              {p.drivers.map((d, i) => (
+                <li key={d}>
+                  {d}
+                  {cite(`driver:${i}`)}
+                </li>
               ))}
             </ul>
             <p className="rail-note">
-              Classical–Quantum analysis provided by Universum Labs · {p.version} ·
-              updated {p.lastUpdated}
+              Powered by Universum Labs · {p.version} · updated {p.lastUpdated}
             </p>
           </div>
 
@@ -142,42 +152,58 @@ export function UseCaseDetail({ uc, related }: { uc: UseCasePublic; related: Use
           </Section>
 
           <Section title="Best credible classical baseline">
-            <p>{uc.classicalBaseline}</p>
-          </Section>
-
-          <Section title="Proposed quantum or quantum-inspired pathway">
-            <p>{uc.quantumPathway}</p>
-          </Section>
-
-          <Section title="Evidence summary">
-            <p>{uc.evidenceSummary}</p>
-            <div className="section-title" style={{ marginTop: 12 }}>Sources</div>
-            <ul className="source-list">
-              {uc.sources.map((s) => (
-                <li key={s.label}>
-                  <ProvenanceBadge p={s.provenance} />
-                  <span>{s.label}</span>
-                </li>
-              ))}
-            </ul>
-            <p className="rail-note">
-              Provenance labels distinguish demonstrated evidence from modeled
-              projections and vendor claims throughout.
+            <p>
+              {uc.classicalBaseline}
+              {cite("classicalBaseline")}
             </p>
           </Section>
 
+          <Section title="Proposed quantum or quantum-inspired pathway">
+            <p>
+              {uc.quantumPathway}
+              {cite("quantumPathway")}
+            </p>
+          </Section>
+
+          <Section title="Evidence summary" open>
+            <p>
+              {uc.evidenceSummary}
+              {cite("evidenceSummary")}
+            </p>
+            <p className="rail-note">
+              Evidence-status and provenance labels distinguish demonstrated
+              evidence from modeled projections and vendor claims throughout.
+              Selected supporting references appear in the next section.
+            </p>
+          </Section>
+
+          <SourcesSection
+            useCaseId={uc.id}
+            domain={uc.domain}
+            horizon={p.horizon}
+            jurisdiction={selectedCountry}
+            highlightedId={openSourceId}
+            onOpenSource={setOpenSourceId}
+          />
+
           <Section title="Access and feasibility considerations">
             <ul className="bullets">
-              {uc.accessNotes.map((n) => (
-                <li key={n}>{n}</li>
+              {uc.accessNotes.map((n, i) => (
+                <li key={n}>
+                  {n}
+                  {cite(`access:${i}`)}
+                </li>
               ))}
             </ul>
           </Section>
 
           <Section title="Known deployments, pilots and research activity">
             <ul className="bullets">
-              {uc.activity.map((a) => (
-                <li key={a}>{a}</li>
+              {uc.activity.map((a, i) => (
+                <li key={a}>
+                  {a}
+                  {cite(`activity:${i}`)}
+                </li>
               ))}
             </ul>
             <div className="section-title" style={{ marginTop: 12 }}>Geographic coverage</div>
@@ -193,8 +219,11 @@ export function UseCaseDetail({ uc, related }: { uc: UseCasePublic; related: Use
 
           <Section title="Policy and workforce implications">
             <ul className="bullets">
-              {uc.policyImplications.map((n) => (
-                <li key={n}>{n}</li>
+              {uc.policyImplications.map((n, i) => (
+                <li key={n}>
+                  {n}
+                  {cite(`policy:${i}`)}
+                </li>
               ))}
             </ul>
           </Section>
@@ -226,6 +255,13 @@ export function UseCaseDetail({ uc, related }: { uc: UseCasePublic; related: Use
       </div>
 
       {explainer && <ExplainerModal onClose={() => setExplainer(false)} />}
+      {openSource && (
+        <SourceModal
+          s={openSource}
+          useCaseId={uc.id}
+          onClose={() => setOpenSourceId(null)}
+        />
+      )}
     </div>
   );
 }
